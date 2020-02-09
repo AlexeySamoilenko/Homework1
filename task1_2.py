@@ -1,22 +1,23 @@
 from functools import total_ordering
+from packaging import version
+from packaging.version import Version, parse
+import semantic_version
+import pkg_resources
 
 
 @total_ordering
-class Version:
-    def __init__(self, version):
+class dersion:
+    def __init__(self, version: str):
         self.version = version
 
     def __lt__(self, other):
-        print (self.version < other.version)
-        return self.version < other.version
+        return version.parse(self.version) < version.parse(other.version)
 
     def __gt__(self, other):
-        print (self.version > other.version)
-        return self.version > other.version
+        return version.parse(self.version) > version.parse(other.version)
 
     def __ne__(self, other):
-        print (self.version != other.version)
-        return self.version != other.version
+        return version.parse(self.version) != version.parse(other.version)
 
 def main():
     to_test = [
