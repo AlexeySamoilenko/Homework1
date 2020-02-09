@@ -1,16 +1,16 @@
-﻿from xml.dom import minidom
-import json
+﻿import json
+from xml.dom import minidom
 
 
 def reading_file(file_path: str):
     with open(file_path, 'r', encoding='utf-8') as f:
         return tuple(json.load(f))
 
-def filfuling_file(data, result_path):
-    with open(result_path, "w") as f:
-        json.dump(data, f)
+def filfuling_file(result_data: dict, save_path_file: str):
+    with open(save_path_file, "w") as f:
+        json.dump(result_data, f)
 
-def data_processing(file_path: str,file_path2: str) -> dict:
+def data_processing(file_path: str, file_path2: str) -> dict:
     file_text = reading_file(file_path)
     d = {}
     for i in file_text:
@@ -25,12 +25,12 @@ def data_processing(file_path: str,file_path2: str) -> dict:
         result_dict[value[0]] = value[1:]
     return result_dict
         
-def createXML(result_dict: dict):
+def create_xml(result_data: dict, save_path_file: str):
     root = minidom.Document()
     xml = root.createElement('root')
     root.appendChild(xml)
     
-    for key, value in result_dict.items():
+    for key, value in result_data.items():
         roomChild = root.createElement('room')
         roomChild.appendChild(root.createTextNode(key))
         xml.appendChild(roomChild)
@@ -38,27 +38,30 @@ def createXML(result_dict: dict):
         childOfRoom = root.createElement('list of people')
         childOfRoom.appendChild(root.createTextNode(str(value)))
         roomChild.appendChild(childOfRoom)
-    
+
     xml_str = root.toprettyxml(indent='\t')
-    save_path_file = 'result.xml'
 
     with open(save_path_file, 'w') as f:
         f.write(xml_str)
 
-def main(file_path: str, file_path2: str, output_format: str):
+
+def main(file_path: str, file_path2: str, save_path_file: str):
 
     result_data = data_processing(file_path, file_path2)
 
-    if output_format == 'json':    
-        filfuling_file(result_data, 'result.json')
-    elif output_format == 'xml':
-        createXML(result_data)
+    if '.json' in save_path_file:    
+        filfuling_file(result_data, save_path_file)
+    elif '.xml' in save_path_file:
+        create_xml(result_data, save_path_file)
     else:
         return False
 
 
 if __name__ == "__main__":
+    main('rooms.json', 'students.json', 'result.json')
+    main('rooms.json', 'students.json', 'result.xml')
+    
 
-    main('rooms.json', 'students.json', 'json')
-    main('rooms.json', 'students.json', 'xml')
+
+
   
