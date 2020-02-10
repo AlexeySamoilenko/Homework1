@@ -2,7 +2,7 @@
 from xml.dom import minidom
 
 
-def reading_file(file_path: str):
+def reading_file(file_path: str) -> tuple:
     with open(file_path, 'r', encoding='utf-8') as f:
         return tuple(json.load(f))
 
@@ -12,18 +12,18 @@ def filfuling_file(result_data: dict, save_path_file: str):
 
 def data_processing(file_path: str, file_path2: str) -> dict:
     file_text = reading_file(file_path)
-    d = {}
+    dict_for_merge = {}
     for i in file_text:
-        d[i['id']] = ['Room #' + str(i['id'])]
+        dict_for_merge[i['id']] = ['Room #' + str(i['id'])]
 
     file2_text = reading_file(file_path2)
     for i in file2_text:
-        d[ i['room'] ].append( i['name'] )
+        dict_for_merge[ i['room'] ].append( i['name'] )
 
-    result_dict = {}
-    for value in d.values():
-        result_dict[value[0]] = value[1:]
-    return result_dict
+    result_data = {}
+    for value in dict_for_merge.values():
+        result_data[value[0]] = value[1:]
+    return result_data
         
 def create_xml(result_data: dict, save_path_file: str):
     root = minidom.Document()
@@ -32,13 +32,8 @@ def create_xml(result_data: dict, save_path_file: str):
     
     for key, value in result_data.items():
         roomChild = root.createElement('room')
-        roomChild.appendChild(root.createTextNode(key))
+        roomChild.appendChild(root.createTextNode(key+':'+str(value)))
         xml.appendChild(roomChild)
-    
-        childOfRoom = root.createElement('list of people')
-        childOfRoom.appendChild(root.createTextNode(str(value)))
-        roomChild.appendChild(childOfRoom)
-
     xml_str = root.toprettyxml(indent='\t')
 
     with open(save_path_file, 'w') as f:
