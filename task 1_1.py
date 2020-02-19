@@ -1,53 +1,81 @@
 ﻿import json
 from xml.dom import minidom
+from abc import ABC, abstractmethod
 
 
-def reading_file(file_path: str) -> tuple:
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return tuple(json.load(f))
+class FileHandler():
+    def __init__(self):
+        pass
 
-def filfuling_file(result_data: dict, save_path_file: str):
-    with open(save_path_file, "w") as f:
-        json.dump(result_data, f)
+    @staticmethod
+    def reading_file(file_path: str) -> tuple:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return tuple(json.load(f))
 
-def data_processing(file_path: str, file_path2: str) -> dict:
-    file_text = reading_file(file_path)
-    dict_for_merge = {}
-    for i in file_text:
-        dict_for_merge[i['id']] = ['Room #' + str(i['id'])]
+    @staticmethod
+    def data_processing(file_path: str, file_path2: str) -> dict:
+        file_text = FileHandler.reading_file(file_path)
+        dict_for_merge = {}
+        for i in file_text:
+            dict_for_merge[i['id']] = ['Room #' + str(i['id'])]
 
-    file2_text = reading_file(file_path2)
-    for i in file2_text:
-        dict_for_merge[ i['room'] ].append( i['name'] )
+        file2_text = FileHandler.reading_file(file_path2)
+        for i in file2_text:
+            dict_for_merge[i['room']].append(i['name'])
 
-    result_data = {}
-    for value in dict_for_merge.values():
-        result_data[value[0]] = value[1:]
-    return result_data
-        
-def create_xml(result_data: dict, save_path_file: str):
-    root = minidom.Document()
-    xml = root.createElement('root')
-    root.appendChild(xml)
-    
-    for key, value in result_data.items():
-        roomChild = root.createElement('room')
-        roomChild.appendChild(root.createTextNode(key+':'+str(value)))
-        xml.appendChild(roomChild)
-    xml_str = root.toprettyxml(indent='\t')
+        result_data = {}
+        for value in dict_for_merge.values():
+            result_data[value[0]] = value[1:]
+        return result_data
 
-    with open(save_path_file, 'w') as f:
-        f.write(xml_str)
+
+class FileSaver(ABC):
+    def __init__(self, result_data: dict, save_path_file: str):
+        self.result_data = result_data
+        self.save_path_file = save_path_file
+
+    @abstractmethod
+    def save_data(self, result_data: dict, save_path_file: str):
+        pass
+
+
+class XmlSaver(FileSaver):
+    def __init__(self, result_data: dict, save_path_file: str):
+        super(XmlSaver, self).__init__(result_data, save_path_file)
+
+    def save_data(self):
+        # Save file in XML format
+        root = minidom.Document()
+        xml = root.createElement('root')
+        root.appendChild(xml)
+
+        for key, value in self.result_data.items():
+            roomChild = root.createElement('room')
+            roomChild.appendChild(root.createTextNode(key + ':' + str(value)))
+            xml.appendChild(roomChild)
+        xml_str = root.toprettyxml(indent='\t')
+
+        with open(self.save_path_file, 'w') as f:
+            f.write(xml_str)
+
+
+class JsonSaver(FileSaver):
+    def __init__(self, result_data: dict, save_path_file: str):
+        super(JsonSaver, self).__init__(result_data, save_path_file)
+
+    def save_data(self):
+        #Save data in Json format
+        with open(self.save_path_file, "w") as f:
+            json.dump(self.result_data, f)
 
 
 def main(file_path: str, file_path2: str, save_path_file: str):
-
-    result_data = data_processing(file_path, file_path2)
-
-    if '.json' in save_path_file:    
-        filfuling_file(result_data, save_path_file)
+    result_data = FileHandler.data_processing(file_path, file_path2)
+    
+    if '.json' in save_path_file:
+        JsonSaver(result_data, save_path_file).save_data()
     elif '.xml' in save_path_file:
-        create_xml(result_data, save_path_file)
+        XmlSaver(result_data, save_path_file).save_data()
     else:
         return False
 
