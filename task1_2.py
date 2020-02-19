@@ -31,38 +31,43 @@ def main():
 
     for version_1, version_2 in to_test:
         assert Version(version_1) < Version(version_2), 'le failed'
-        #assert Version(version_2) > Version(version_1), 'ge failed'
+        assert Version(version_2) > Version(version_1), 'ge failed'
         assert Version(version_2) != Version(version_1), 'neq failed'
         
     
-def gt(_, __):
-        if _[:min(len(_), len(__))] == __[:min(len(_), len(__))] and len(_) == 3 and len(_) < len(__):
-            return True
-        elif _[:min(len(_), len(__))] == __[:min(len(_), len(__))] and len(__) == 3 and len(_) > len(__):
-            return False
-        if _[:min(len(_), len(__))] == __[:min(len(_), len(__))] and len(_) > len(__):
-            return True
-        elif _[:min(len(_), len(__))] == __[:min(len(_), len(__))] and len(_) < len(__):
-            return False
+def gt(version_1:list,version_2:list) -> bool:
+    
+    min_len_list = min(len(version_1), len(version_2))
         
-        for i in range(min(len(_),len(__))):
-            if re.match(r'(\d+\D+)|(\D+\d+)', _[i]+__[i]) and _[i] != __[i]:
-                if re.findall(r'\d+', _[i]) < re.findall(r'\d+', __[i]):
-                    return False
-                elif re.findall(r'\D+', _[i]) > re.findall(r'\D+', __[i]):
-                    print(re.findall(r'\D+', _[i]))
-                    return True
-            
-            if _[i] < __[i]:
-                print(5,_[i],__[i])
+    if version_1[:min_len_list] == version_2[:min_len_list] and len(version_1) == 3 and len(version_1) < len(version_2):
+        return True
+    elif version_1[:min_len_list] == version_2[:min_len_list] and len(version_2) == 3 and len(version_1) > len(version_2):
+        return False
+    if version_1[:min_len_list] == version_2[:min_len_list] and len(version_1) > len(version_2):
+        return True
+    elif version_1[:min_len_list] == version_2[:min_len_list] and len(version_1) < len(version_2):
+        return False
+        
+    for i in range(min_len_list):
+        if re.findall(r'(\d+\D+)|(\D+\d+)', version_1[i] + version_2[i]) and version_1[i] != version_2[i]:
+            if re.findall(r'\d+', version_1[i]) < re.findall(r'\d+', version_2[i]):
                 return False
+            elif re.findall(r'\d+', version_1[i]) > re.findall(r'\d+', version_2[i]):
+                return True
+            elif re.findall(r'\D+', version_1[i]) > re.findall(r'\D+', version_2[i]):
+                return True
+        
+        if version_1[i] > version_2[i]:
+            return True
+        elif version_1[i] < version_2[i]:
+            return False
 
-def split_str(_,__):
-    #_ = _.get_version()
-    _= _.replace(".", " ").replace("-", " ").split()
-    #__ =__.get_version()
-    __=__.replace(".", " ").replace("-", " ").split()     
-    return gt(_, __)
+def split_str(version_1,version_2):
+    version_1= version_1.replace(".", " ").replace("-", " ").split()
+    version_2= version_2.replace(".", " ").replace("-", " ").split()     
+    return gt(version_1,version_2)
+
 
 if __name__ == "__main__":
     main()
+print(ads)
