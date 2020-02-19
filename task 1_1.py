@@ -13,14 +13,14 @@ class FileHandler():
             return tuple(json.load(f))
 
     @staticmethod
-    def data_processing(file_path: str, file_path2: str) -> dict:
-        file_text = FileHandler.reading_file(file_path)
+    def data_processing(room_file_path: str, students_file_path: str) -> dict:
+        data_from_file = FileHandler.reading_file(room_file_path)
         dict_for_merge = {}
-        for i in file_text:
+        for i in data_from_file:
             dict_for_merge[i['id']] = ['Room #' + str(i['id'])]
 
-        file2_text = FileHandler.reading_file(file_path2)
-        for i in file2_text:
+        data_from_file = FileHandler.reading_file(file_path2)
+        for i in data_from_file:
             dict_for_merge[i['room']].append(i['name'])
 
         result_data = {}
