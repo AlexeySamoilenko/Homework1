@@ -33,9 +33,14 @@ def main():
         assert Version(version_1) < Version(version_2), 'le failed'
         assert Version(version_2) > Version(version_1), 'ge failed'
         assert Version(version_2) != Version(version_1), 'neq failed'
-        
+
+
+def split_str(version_1,version_2):
+    version_1 = version_1.replace(".", " ").replace("-", " ").split()
+    version_2 = version_2.replace(".", " ").replace("-", " ").split()     
+    return gt(version_1,version_2)
     
-def gt(version_1:list,version_2:list) -> bool:
+def gt(version_1:list, version_2:list) -> bool:
     
     min_len_list = min(len(version_1), len(version_2))
         
@@ -62,12 +67,8 @@ def gt(version_1:list,version_2:list) -> bool:
         elif version_1[i] < version_2[i]:
             return False
 
-def split_str(version_1,version_2):
-    version_1= version_1.replace(".", " ").replace("-", " ").split()
-    version_2= version_2.replace(".", " ").replace("-", " ").split()     
-    return gt(version_1,version_2)
 
 
 if __name__ == "__main__":
-    main()
-print(ads)
+main()
+
