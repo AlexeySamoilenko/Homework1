@@ -1,4 +1,4 @@
-﻿import json
+import json
 from xml.dom import minidom
 from abc import ABC, abstractmethod
 
@@ -14,12 +14,13 @@ class FileHandler():
 
     @staticmethod
     def data_processing(room_file_path: str, students_file_path: str) -> dict:
+        #returns a dictionary {'room #': [students list]}
         data_from_file = FileHandler.reading_file(room_file_path)
         dict_for_merge = {}
         for i in data_from_file:
             dict_for_merge[i['id']] = ['Room #' + str(i['id'])]
 
-        data_from_file = FileHandler.reading_file(file_path2)
+        data_from_file = FileHandler.reading_file(students_file_path)
         for i in data_from_file:
             dict_for_merge[i['room']].append(i['name'])
 
@@ -33,18 +34,23 @@ class FileSaver(ABC):
     def __init__(self, result_data: dict, save_path_file: str):
         self.result_data = result_data
         self.save_path_file = save_path_file
-
+    
     @abstractmethod
-    def save_data(self, result_data: dict, save_path_file: str):
+    def prepare(self):    
         pass
+    
+    def save_data(self):
+        self.prepare()
+        with open(self.save_path_file, 'w') as f:
+            f.write(self.result_data)
 
 
 class XmlSaver(FileSaver):
     def __init__(self, result_data: dict, save_path_file: str):
         super(XmlSaver, self).__init__(result_data, save_path_file)
 
-    def save_data(self):
-        # Save file in XML format
+    def prepare(self):
+        # preparint to Save file in XML format, turning dict into str
         root = minidom.Document()
         xml = root.createElement('root')
         root.appendChild(xml)
@@ -53,23 +59,21 @@ class XmlSaver(FileSaver):
             roomChild = root.createElement('room')
             roomChild.appendChild(root.createTextNode(key + ':' + str(value)))
             xml.appendChild(roomChild)
-        xml_str = root.toprettyxml(indent='\t')
-
-        with open(self.save_path_file, 'w') as f:
-            f.write(xml_str)
+        self.result_data = root.toprettyxml(indent='\t')
 
 
 class JsonSaver(FileSaver):
     def __init__(self, result_data: dict, save_path_file: str):
         super(JsonSaver, self).__init__(result_data, save_path_file)
 
-    def save_data(self):
-        #Save data in Json format
-        with open(self.save_path_file, "w") as f:
-            json.dump(self.result_data, f)
+    def prepare(self):
+        #preparing for writing in file, turning dict into str
+        self.result_data = json.dumps(self.result_data, indent=4) 
+    
 
-
+    
 def main(file_path: str, file_path2: str, save_path_file: str):
+    
     result_data = FileHandler.data_processing(file_path, file_path2)
     
     if '.json' in save_path_file:
