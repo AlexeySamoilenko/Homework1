@@ -1,22 +1,47 @@
 from functools import total_ordering
 import re
 
+
 @total_ordering
 class Version:
     def __init__(self, version: str):
         self.version = version
-        
+
     def get_version(self):
         return self.version
-    
+
     def __gt__(self, other):
-        return split_str(self.version, other.version)
-    
+        if split_str(self.version)[:3] == split_str(other.version)[:3] and len(split_str(self.version)) == 3 and len(
+                split_str(other.version)) > 3:
+            return True
+        else:
+            return split_str(self.version) > split_str(other.version)
+
     def __lt__(self, other):
-        return False if split_str(self.version, other.version) == True else True
-    
-    def __eq__(self, other):
-        return self.version == other.version
+        if split_str(self.version)[:3] == split_str(other.version)[:3] and len(split_str(other.version)) == 3 and len(
+                split_str(self.version)) > 3:
+            return True
+        else:
+            return split_str(self.version) < split_str(other.version)
+
+
+def stages_of_develop_to_digit(version):
+    #probably should have put this function in a class
+    #replaces the stages_of_develop with the numerical equivalent
+    stages_of_development = ('alpha',
+                             'beta|b',
+                             'rc')
+
+    for i, item in enumerate(stages_of_development):
+        version = re.sub(item, '.' + str(i), version)
+    return version
+
+
+def split_str(version) -> list:
+    #probably should have put this function in a class
+    version = stages_of_develop_to_digit(version)
+    version = version.replace(".", " ").replace("-", " ").split()
+    return version
 
 
 def main():
@@ -35,11 +60,10 @@ def main():
         assert Version(version_2) != Version(version_1), 'neq failed'
 
 
-def split_str(version_1,version_2):
-    version_1 = version_1.replace(".", " ").replace("-", " ").split()
-    version_2 = version_2.replace(".", " ").replace("-", " ").split()     
-    return gt(version_1,version_2)
     
+if __name__ == "__main__":
+    main()
+'''        
 def gt(version_1:list, version_2:list) -> bool:
     
     min_len_list = min(len(version_1), len(version_2))
@@ -65,10 +89,5 @@ def gt(version_1:list, version_2:list) -> bool:
         if version_1[i] > version_2[i]:
             return True
         elif version_1[i] < version_2[i]:
-            return False
-
-
-
-if __name__ == "__main__":
-main()
+            return False'''
 
